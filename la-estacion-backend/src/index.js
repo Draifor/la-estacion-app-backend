@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 
 import db from './utils/database.js';
 import userRouter from './routes/user.js';
+import supplierRouter from './routes/supplier.js';
 // import { createDefaultDBValues, defaultProductValues } from './utils/tests/createDefaultDBValues.js';
 
 export const app = express();
@@ -20,6 +21,9 @@ app.listen(port, () => console.log(`Listening on port ${port}..`));
 
 // Mount the users router on the /users prefix
 app.use('/users', userRouter);
+
+// Mount the suppliers router on the /suppliers prefix
+app.use('/suppliers', supplierRouter);
 
 app.post('/login', async (req, res) => {
   console.log('Llegó una', req.body);
