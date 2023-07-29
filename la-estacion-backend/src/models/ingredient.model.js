@@ -13,7 +13,8 @@ export const Ingredient = (sequelize) => {
       },
       ingredient_name: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
+        unique: true
       },
       ingredient_description: {
         type: DataTypes.STRING,

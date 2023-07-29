@@ -1,200 +1,146 @@
-import { Op } from 'sequelize';
-
 import db from '../../utils/database.js';
 
-// Function to convert a Invoice object to DTO
-const invoiceToDTO = (invoice) => {
-  const invoiceDTO = {
-    id: invoice.invoice_id,
-    supplier: invoice.Supplier.supplier_name,
-    description: invoice.description,
-    date: invoice.invoice_date,
-    dueDate: invoice.due_date,
-    totalAmount: invoice.total_amount,
-    paidAmount: invoice.paid_amount,
-    paymentStatus: invoice.payment_status,
-    remainingAmount: invoice.remaining_amount
+// Function to convert a Ingredient object to DTO
+const ingredientToDTO = (ingredient) => {
+  const ingredientDTO = {
+    id: ingredient.ingredient_id,
+    name: ingredient.ingredient_name,
+    description: ingredient.ingredient_description,
+    price: ingredient.ingredient_price,
+    stock: ingredient.ingredient_stock
   };
-  return invoiceDTO;
+  return ingredientDTO;
 };
 
-// Create invoice controller
-const invoiceController = {
-  // Get all invoices
-  getAllInvoices: async (req, res) => {
+// Create ingredient controller
+const ingredientController = {
+  // Get all ingredients
+  getAllIngredients: async (req, res) => {
     try {
-      const { from, to } = req.params;
+      const ingredients = await db.Ingredient.findAll();
 
-      if (!from || !to) {
-        return res.status(400).send('Missing from or to');
-      }
+      // Convert ingredients to DTO
+      const ingredientsDTO = ingredients.map((ingredient) =>
+        ingredientToDTO(ingredient)
+      );
+      console.log('getAllIngredients:', ingredientsDTO.length);
 
-      console.log('from:', from);
-      console.log('to:', to);
-
-      // // Split the strings by '-' and parse them as numbers
-      // const [fromYear, fromMonth, fromDay] = from.split('-').map(Number);
-      // const [toYear, toMonth, toDay] = to.split('-').map(Number);
-
-      // // Create the dates using the constructor with year, month and day
-      // // Note that the month is zero-based, so we have to subtract 1
-      // const startDate = new Date(fromYear, fromMonth - 1, fromDay);
-      // const endDate = new Date(toYear, toMonth - 1, toDay);
-
-      const startDate = new Date(from);
-      const endDate = new Date(to);
-
-      startDate.setHours(0, 0, 0, 0);
-      endDate.setHours(23, 59, 59, 999);
-
-      console.log('startDate:', startDate);
-      console.log('endDate:', endDate);
-
-      const invoices = await db.Invoice.findAll({
-        where: {
-          invoice_date: {
-            [Op.between]: [startDate, endDate]
-          }
-        },
-        include: {
-          model: db.Supplier,
-          attributes: ['supplier_name']
-        }
-      });
-
-      // Convert invoices to DTO
-      const invoicesDTO = invoices.map((invoice) => invoiceToDTO(invoice));
-      console.log('getAllInvoices:', invoicesDTO.length);
-
-      res.json(invoicesDTO);
+      res.json(ingredientsDTO);
     } catch (error) {
       res.status(500).send(error.message);
     }
   },
-  // Get invoice by id
-  getInvoiceById: async (req, res) => {
+  // Get ingredient by id
+  getIngredientById: async (req, res) => {
     try {
       const { id } = req.params;
-      const invoice = await db.Invoice.findByPk(id);
-      if (!invoice) {
-        return res.status(404).send('Invoice not found');
+      const ingredient = await db.Ingredient.findByPk(id);
+      if (!ingredient) {
+        return res.status(404).send('Ingredient not found');
       }
 
-      // Convert invoice to DTO
-      const invoiceDTO = invoiceToDTO(invoice);
-      console.log('getInvoiceById:', invoiceDTO);
+      // Convert ingredient to DTO
+      const ingredientDTO = ingredientToDTO(ingredient);
+      console.log('getIngredientById:', ingredientDTO);
 
-      res.json(invoiceDTO);
+      res.json(ingredientDTO);
     } catch (error) {
       res.status(500).send(error.message);
     }
   },
-  // Create a new invoice
-  createInvoice: async (req, res) => {
+  // Create a new ingredient
+  createIngredient: async (req, res) => {
     try {
-      const invoiceDTO = req.body;
-      // Search for invoice type
-      const supplier = await db.Supplier.findOne({
+      const ingredientDTO = req.body;
+      // Search for ingredient
+      const ingredientExists = await db.Ingredient.findOne({
         where: {
-          supplier_name: invoiceDTO.supplier
+          ingredient_name: ingredientDTO.name
         }
       });
-      if (!supplier) {
-        return res.status(404).send('Supplier not found');
+      if (ingredientExists) {
+        return res.status(404).send('Ingredient already exists');
       }
-      // Create invoice
-      const invoice = {
-        invoice_date: invoiceDTO.date,
-        due_date: invoiceDTO.dueDate,
-        description: invoiceDTO.description,
-        total_amount: invoiceDTO.totalAmount,
-        paid_amount: invoiceDTO.paidAmount,
-        payment_status: invoiceDTO.paymentStatus,
-        remaining_amount: invoiceDTO.remainingAmount
+
+      // Create ingredient
+      const ingredient = {
+        ingredient_name: ingredientDTO.name,
+        ingredient_description: ingredientDTO.description,
+        ingredient_price: ingredientDTO.price,
+        ingredient_stock: ingredientDTO.stock
       };
-      const invoiceCreated = await db.Invoice.create(invoice);
 
-      invoiceCreated.Supplier = supplier;
+      const ingredientCreated = await db.Ingredient.create(ingredient);
 
-      // Convert invoice to DTO
-      const invoiceCreatedDTO = invoiceToDTO(invoiceCreated);
-      console.log('createInvoiceDTO:', invoiceCreatedDTO);
+      // Convert ingredient to DTO
+      const ingredientCreatedDTO = ingredientToDTO(ingredientCreated);
+      console.log('createIngredientDTO:', ingredientCreatedDTO);
 
-      res.status(201).json(invoiceCreatedDTO);
+      res.status(201).json(ingredientCreatedDTO);
     } catch (error) {
       res.status(500).send(error.message);
     }
   },
-  // Update a invoice
-  updateInvoice: async (req, res) => {
+  // Update ingredient
+  updateIngredient: async (req, res) => {
     try {
-      const invoiceDTO = req.body;
-      console.log('updateInvoice --> Input:', invoiceDTO);
-      // Search for invoice type
-      const supplier = await db.Supplier.findOne({
-        where: {
-          supplier_name: invoiceDTO.supplier
-        }
-      });
-      if (!supplier) {
-        return res.status(404).send('Supplier not found');
+      const ingredientDTO = req.body;
+      console.log('updateIngredient --> Input:', ingredientDTO);
+      // Search for ingredient type
+      const ingredient = await db.Ingredient.findByPk(ingredientDTO.id);
+      if (!ingredient) {
+        return res.status(404).send('Ingredient not found');
       }
-      // Update invoice
-      const invoice = {
-        supplier_id: supplier.supplier_id,
-        description: invoiceDTO.description,
-        due_date: invoiceDTO.dueDate,
-        total_amount: invoiceDTO.totalAmount,
-        paid_amount: invoiceDTO.paidAmount,
-        payment_status: invoiceDTO.paymentStatus,
-        remaining_amount: invoiceDTO.remainingAmount
-      };
-      await db.Invoice.update(invoice, {
+
+      // Search for ingredient
+      const ingredientExists = await db.Ingredient.findOne({
         where: {
-          invoice_id: invoiceDTO.id
+          ingredient_name: ingredientDTO.name
         }
       });
+      if (
+        ingredientExists &&
+        ingredientExists.ingredient_id !== ingredient.ingredient_id
+      ) {
+        return res.status(404).send('Ingredient already exists');
+      }
 
-      const invoiceUpdated = await db.Invoice.findByPk(invoiceDTO.id, {
-        include: {
-          model: db.Supplier,
-          attributes: ['supplier_name']
-        }
+      // Update ingredient
+      await ingredient.update({
+        ingredient_name: ingredientDTO.name,
+        ingredient_description: ingredientDTO.description,
+        ingredient_price: ingredientDTO.price,
+        ingredient_stock: ingredientDTO.stock
       });
 
-      // Convert invoice to DTO
-      const invoiceUpdatedDTO = invoiceToDTO(invoiceUpdated);
-      console.log('updateInvoice --> output:', invoiceUpdatedDTO);
+      // Convert ingredient to DTO
+      const ingredientUpdatedDTO = ingredientToDTO(ingredient);
+      console.log('updateIngredient --> output:', ingredientUpdatedDTO);
 
-      res.json(invoiceUpdatedDTO);
+      res.json(ingredientUpdatedDTO);
     } catch (error) {
       res.status(500).send(error.message);
     }
   },
-  // Delete a invoice
-  deleteInvoice: async (req, res) => {
+  // Delete a ingredient
+  deleteIngredient: async (req, res) => {
     try {
       const { id } = req.params;
-      const invoice = await db.Invoice.findByPk(id, {
-        include: {
-          model: db.Supplier,
-          attributes: ['supplier_name']
-        }
-      });
-      if (!invoice) {
-        return res.status(404).send('Invoice not found');
+      const ingredient = await db.Ingredient.findByPk(id);
+      if (!ingredient) {
+        return res.status(404).send('Ingredient not found');
       }
-      await invoice.destroy();
+      await ingredient.destroy();
 
-      // Convert invoice to DTO
-      const invoiceDeletedDTO = invoiceToDTO(invoice);
-      console.log('deleteInvoice:', invoiceDeletedDTO);
+      // Convert ingredient to DTO
+      const ingredientDeletedDTO = ingredientToDTO(ingredient);
+      console.log('deleteIngredient:', ingredientDeletedDTO);
 
-      res.json(invoiceDeletedDTO);
+      res.json(ingredientDeletedDTO);
     } catch (error) {
       res.status(500).send(error.message);
     }
   }
 };
 
-export default invoiceController;
+export default ingredientController;

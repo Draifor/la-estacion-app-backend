@@ -1,18 +1,18 @@
 import express from 'express';
 
-import invoiceController from './ingredientsController.js';
+import ingredientController from './ingredientsController.js';
 
 const router = express.Router();
 
 // Define routes to handle CRUD operations
-router.get('/:from/:to', invoiceController.getAllInvoices);
+router.get('/', ingredientController.getAllIngredients);
 
-router.get('/:id', invoiceController.getInvoiceById);
+router.get('/:id', ingredientController.getIngredientById);
 
-router.post('/', invoiceController.createInvoice);
+router.post('/', ingredientController.createIngredient);
 
-router.put('/', invoiceController.updateInvoice);
+router.put('/', ingredientController.updateIngredient);
 
-router.delete('/:id', invoiceController.deleteInvoice);
+router.delete('/:id', ingredientController.deleteIngredient);
 
 export default router;
