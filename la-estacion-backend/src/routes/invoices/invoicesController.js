@@ -95,6 +95,7 @@ const invoiceController = {
       }
       // Create invoice
       const invoice = {
+        supplier_id: supplier.supplier_id,
         invoice_date: invoiceDTO.date,
         due_date: invoiceDTO.dueDate,
         description: invoiceDTO.description,

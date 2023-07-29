@@ -39,19 +39,46 @@ const db = {
 };
 
 // Define the associations between the models
-db.Supplier.hasMany(db.Invoice, { foreignKey: 'supplier_id' });
+db.Supplier.hasMany(db.Invoice, {
+  foreignKey: 'supplier_id',
+  onDelete: 'restrict'
+});
 db.Invoice.belongsTo(db.Supplier, { foreignKey: 'supplier_id' });
-db.SupplierType.hasMany(db.Supplier, { foreignKey: 'type_id' });
+db.SupplierType.hasMany(db.Supplier, {
+  foreignKey: 'type_id',
+  onDelete: 'restrict'
+});
 db.Supplier.belongsTo(db.SupplierType, { foreignKey: 'type_id' });
 
-db.Ingredient.hasMany(db.IngredientDough, { foreignKey: 'ingredient_id' });
-db.Dough.hasMany(db.IngredientDough, { foreignKey: 'dough_id' });
+db.Ingredient.hasMany(db.IngredientDough, {
+  foreignKey: 'ingredient_id',
+  onDelete: 'restrict'
+});
+db.Dough.hasMany(db.IngredientDough, {
+  foreignKey: 'dough_id',
+  onDelete: 'restrict'
+});
 db.IngredientDough.belongsTo(db.Ingredient, { foreignKey: 'ingredient_id' });
 db.IngredientDough.belongsTo(db.Dough, { foreignKey: 'dough_id' });
 
-db.Dough.hasMany(db.DoughProduct, { foreignKey: 'dough_id' });
-db.Product.hasMany(db.DoughProduct, { foreignKey: 'product_id' });
+db.Dough.hasMany(db.DoughProduct, {
+  foreignKey: 'dough_id',
+  onDelete: 'restrict'
+});
+db.Product.hasMany(db.DoughProduct, {
+  foreignKey: 'product_id',
+  onDelete: 'restrict'
+});
 db.DoughProduct.belongsTo(db.Dough, { foreignKey: 'dough_id' });
 db.DoughProduct.belongsTo(db.Product, { foreignKey: 'product_id' });
 
 export default db;
+
+// Sincronizar los modelos con la base de datos usando alter
+// sequelize.sync({ alter: true })
+//   .then(() => {
+//     console.log('Los modelos se han sincronizado con la base de datos usando alter');
+//   })
+//   .catch((error) => {
+//     console.error('Ha ocurrido un error al sincronizar los modelos con la base de datos usando alter:', error);
+//   });
