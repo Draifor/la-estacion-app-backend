@@ -3,8 +3,10 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 import db from './utils/database.js';
-import userRouter from './routes/user.js';
-import supplierRouter from './routes/supplier.js';
+import usersRouter from './routes/users/users.js';
+import suppliersRouter from './routes/suppliers/suppliers.js';
+import invoicesRouter from './routes/invoices/invoices.js';
+import ingredientsRouter from './routes/ingredients/ingredients.js';
 // import { createDefaultDBValues, defaultProductValues } from './utils/tests/createDefaultDBValues.js';
 
 export const app = express();
@@ -20,10 +22,16 @@ const port = process.env.PORT || 4000;
 app.listen(port, () => console.log(`Listening on port ${port}..`));
 
 // Mount the users router on the /users prefix
-app.use('/users', userRouter);
+app.use('/users', usersRouter);
 
 // Mount the suppliers router on the /suppliers prefix
-app.use('/suppliers', supplierRouter);
+app.use('/suppliers', suppliersRouter);
+
+// Mount the invoices router on the /invoices prefix
+app.use('/invoices', invoicesRouter);
+
+// Mount the ingredients router on the /ingredients prefix
+app.use('/ingredients', ingredientsRouter);
 
 app.post('/login', async (req, res) => {
   console.log('Llegó una', req.body);
@@ -66,70 +74,3 @@ app.post('/login', async (req, res) => {
     res.status(500).send(error.message);
   }
 });
-
-// // Router to GET specific student detail from the MySQL database
-// app.get('/students/:id', (req, res) => {
-//   mysqlConnection.query(
-//     'SELECT * FROM student WHERE student_id = ?',
-//     [req.params.id],
-//     (err, rows, fields) => {
-//       if (!err) res.send(rows);
-//       else console.log(err);
-//     }
-//   );
-// });
-
-// // Router to INSERT/POST a student's detail
-// app.post('/students', (req, res) => {
-//   const student = req.body;
-//   if (student.student_id === undefined) {
-//     student.student_id = 0;
-//   }
-//   const sql =
-//     'SET @student_id = ?;SET @student_name = ?;SET @student_email = ?;SET @student_phone = ?; CALL studentAddOrEdit(@student_id,@student_name,@student_email,@student_phone);';
-//   mysqlConnection.query(
-//     sql,
-//     [
-//       student.student_id,
-//       student.student_name,
-//       student.student_email,
-//       student.student_phone
-//     ],
-//     (err, rows, fields) => {
-//       if (!err) res.send('Student Created Successfully');
-//       else console.log(err);
-//     }
-//   );
-// });
-
-// // Router to UPDATE a student's detail
-// app.put('/students', (req, res) => {
-//   const student = req.body;
-//   const sql =
-//     'SET @student_id = ?;SET @student_name = ?;SET @student_email = ?;SET @student_phone = ?; CALL studentAddOrEdit(@student_id,@student_name,@student_email,@student_phone);';
-//   mysqlConnection.query(
-//     sql,
-//     [
-//       student.student_id,
-//       student.student_name,
-//       student.student_email,
-//       student.student_phone
-//     ],
-//     (err, rows, fields) => {
-//       if (!err) res.send('Student Details Updated Successfully');
-//       else console.log(err);
-//     }
-//   );
-// });
-
-// // Router to DELETE a student's detail
-// app.delete('/students/:id', (req, res) => {
-//   mysqlConnection.query(
-//     'DELETE FROM student WHERE student_id = ?',
-//     [req.params.id],
-//     (err, rows, fields) => {
-//       if (!err) res.send('Student Record deleted successfully.');
-//       else console.log(err);
-//     }
-//   );
-// });

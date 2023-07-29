@@ -1,7 +1,7 @@
 import mysql from 'mysql2';
 import { Sequelize } from 'sequelize';
 import { User } from '../models/user.model.js';
-import { Dough } from '../models/dough.js';
+import { Dough } from '../models/dough.model.js';
 import { Product } from '../models/product.model.js';
 import { Invoice } from '../models/invoice.model.js';
 import { Supplier } from '../models/supplier.model.js';
@@ -17,7 +17,7 @@ const sequelize = new Sequelize(
   {
     host: process.env.DB_HOST,
     port: process.env.DB_PORT || 3306,
-    dialect: 'mysql',
+    dialect: process.env.DB_DIALECT,
     dialectModule: mysql,
     timezone: '-05:00',
     logging: false
@@ -42,6 +42,7 @@ const db = {
 db.Supplier.hasMany(db.Invoice, { foreignKey: 'supplier_id' });
 db.Invoice.belongsTo(db.Supplier, { foreignKey: 'supplier_id' });
 db.SupplierType.hasMany(db.Supplier, { foreignKey: 'type_id' });
+db.Supplier.belongsTo(db.SupplierType, { foreignKey: 'type_id' });
 
 db.Ingredient.hasMany(db.IngredientDough, { foreignKey: 'ingredient_id' });
 db.Dough.hasMany(db.IngredientDough, { foreignKey: 'dough_id' });
