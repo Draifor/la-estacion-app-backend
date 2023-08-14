@@ -4,6 +4,7 @@ import { User } from '../models/user.model.js';
 import { Dough } from '../models/dough.model.js';
 import { Product } from '../models/product.model.js';
 import { Invoice } from '../models/invoice.model.js';
+import { InvoiceNumber } from '../models/invoiceNumber.model.js';
 import { Supplier } from '../models/supplier.model.js';
 import { Ingredient } from '../models/ingredient.model.js';
 import { SupplierType } from '../models/supplierType.model.js';
@@ -30,6 +31,7 @@ const db = {
   User: User(sequelize),
   Supplier: Supplier(sequelize),
   Invoice: Invoice(sequelize),
+  InvoiceNumber: InvoiceNumber(sequelize),
   SupplierType: SupplierType(sequelize),
   Dough: Dough(sequelize),
   Product: Product(sequelize),
@@ -39,11 +41,16 @@ const db = {
 };
 
 // Define the associations between the models
-db.Supplier.hasMany(db.Invoice, {
+db.Supplier.hasMany(db.InvoiceNumber, {
   foreignKey: 'supplier_id',
   onDelete: 'restrict'
 });
-db.Invoice.belongsTo(db.Supplier, { foreignKey: 'supplier_id' });
+db.InvoiceNumber.belongsTo(db.Supplier, { foreignKey: 'supplier_id' });
+db.InvoiceNumber.hasMany(db.Invoice, {
+  foreignKey: 'invoice_number_id',
+  onDelete: 'restrict'
+});
+db.Invoice.belongsTo(db.InvoiceNumber, { foreignKey: 'invoice_number_id' });
 db.SupplierType.hasMany(db.Supplier, {
   foreignKey: 'type_id',
   onDelete: 'restrict'

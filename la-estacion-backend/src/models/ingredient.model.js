@@ -27,6 +27,10 @@ export const Ingredient = (sequelize) => {
       ingredient_stock: {
         type: DataTypes.INTEGER,
         allowNull: false
+      },
+      ingredient_unit: {
+        type: DataTypes.ENUM('kg', 'g', 'l', 'ml', 'un'),
+        allowNull: false
       }
     },
     {

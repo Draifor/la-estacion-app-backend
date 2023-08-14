@@ -7,7 +7,8 @@ const ingredientToDTO = (ingredient) => {
     name: ingredient.ingredient_name,
     description: ingredient.ingredient_description,
     price: ingredient.ingredient_price,
-    stock: ingredient.ingredient_stock
+    stock: ingredient.ingredient_stock,
+    unit: ingredient.ingredient_unit
   };
   return ingredientDTO;
 };
@@ -67,7 +68,8 @@ const ingredientController = {
         ingredient_name: ingredientDTO.name,
         ingredient_description: ingredientDTO.description,
         ingredient_price: ingredientDTO.price,
-        ingredient_stock: ingredientDTO.stock
+        ingredient_stock: ingredientDTO.stock,
+        ingredient_unit: ingredientDTO.unit
       };
 
       const ingredientCreated = await db.Ingredient.create(ingredient);
@@ -110,7 +112,8 @@ const ingredientController = {
         ingredient_name: ingredientDTO.name,
         ingredient_description: ingredientDTO.description,
         ingredient_price: ingredientDTO.price,
-        ingredient_stock: ingredientDTO.stock
+        ingredient_stock: ingredientDTO.stock,
+        ingredient_unit: ingredientDTO.unit
       });
 
       // Convert ingredient to DTO

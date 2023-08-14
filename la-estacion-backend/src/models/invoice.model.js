@@ -11,7 +11,7 @@ export const Invoice = (sequelize) => {
         primaryKey: true,
         autoIncrement: true
       },
-      supplier_id: {
+      invoice_number_id: {
         type: DataTypes.INTEGER,
         allowNull: false
       },
@@ -20,28 +20,11 @@ export const Invoice = (sequelize) => {
         allowNull: false,
         defaultValue: DataTypes.NOW
       },
-      due_date: {
-        type: DataTypes.DATEONLY,
-        allowNull: false,
-        defaultValue: DataTypes.NOW
-      },
       description: {
         type: DataTypes.STRING,
         allowNull: false
       },
-      total_amount: {
-        type: DataTypes.INTEGER,
-        allowNull: false
-      },
-      paid_amount: {
-        type: DataTypes.INTEGER,
-        allowNull: false
-      },
-      payment_status: {
-        type: DataTypes.ENUM('Crédito', 'Pagada'),
-        allowNull: false
-      },
-      remaining_amount: {
+      amount: {
         type: DataTypes.INTEGER,
         allowNull: false
       }

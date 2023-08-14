@@ -6,14 +6,15 @@ import db from '../../utils/database.js';
 const invoiceToDTO = (invoice) => {
   const invoiceDTO = {
     id: invoice.invoice_id,
+    invoiceNumberId: invoice.InvoiceNumber.invoice_number_id,
     supplier: invoice.Supplier.supplier_name,
     description: invoice.description,
     date: invoice.invoice_date,
-    dueDate: invoice.due_date,
-    totalAmount: invoice.total_amount,
-    paidAmount: invoice.paid_amount,
-    paymentStatus: invoice.payment_status,
-    remainingAmount: invoice.remaining_amount
+    amount: invoice.amount,
+    totalAmount: invoice.InvoiceNumber.total_amount,
+    paidAmount: invoice.InvoiceNumber.paid_amount,
+    paymentStatus: invoice.InvoiceNumber.payment_status,
+    remainingAmount: invoice.InvoiceNumber.remaining_amount
   };
   return invoiceDTO;
 };
@@ -47,10 +48,16 @@ const invoiceController = {
             [Op.between]: [startDate, endDate]
           }
         },
-        include: {
-          model: db.Supplier,
-          attributes: ['supplier_name']
-        }
+        include: [
+          {
+            model: db.InvoiceNumber,
+            attributes: ['total_amount', 'paid_amount', 'payment_status', 'remaining_amount']
+          },
+          {
+            model: db.Supplier,
+            attributes: ['supplier_name']
+          }
+        ]
       });
 
       // Convert invoices to DTO
@@ -84,7 +91,7 @@ const invoiceController = {
   createInvoice: async (req, res) => {
     try {
       const invoiceDTO = req.body;
-      // Search for invoice type
+      // Search for supplier
       const supplier = await db.Supplier.findOne({
         where: {
           supplier_name: invoiceDTO.supplier
@@ -93,19 +100,48 @@ const invoiceController = {
       if (!supplier) {
         return res.status(404).send('Supplier not found');
       }
+      // Search for invoice number
+      let invoiceNumber = await db.InvoiceNumber.findOne({
+        where: {
+          invoice_number_id: invoiceDTO.invoiceNumberId
+        }
+      });
+      // Create invoice number if not exists
+      if (!invoiceNumber) {
+        invoiceNumber = await db.InvoiceNumber.create({
+          supplier_id: supplier.supplier_id,
+          total_amount: invoiceDTO.totalAmount,
+          paid_amount: invoiceDTO.paidAmount,
+          payment_status: invoiceDTO.paymentStatus,
+          remaining_amount: invoiceDTO.remainingAmount
+        });
+      }
       // Create invoice
       const invoice = {
+        invoice_number_id: invoiceNumber.invoice_number_id,
         supplier_id: supplier.supplier_id,
         invoice_date: invoiceDTO.date,
         due_date: invoiceDTO.dueDate,
         description: invoiceDTO.description,
-        total_amount: invoiceDTO.totalAmount,
-        paid_amount: invoiceDTO.paidAmount,
-        payment_status: invoiceDTO.paymentStatus,
-        remaining_amount: invoiceDTO.remainingAmount
+        amount: invoiceDTO.amount
       };
       const invoiceCreated = await db.Invoice.create(invoice);
 
+      // Update invoice number
+      await invoiceNumber.update({
+        total_amount: invoiceNumber.total_amount + invoice.amount,
+        paid_amount: invoiceNumber.paid_amount + invoice.amount,
+        payment_status:
+          invoiceNumber.paid_amount + invoice.amount ===
+          invoiceNumber.total_amount + invoice.amount
+            ? 'Pagada'
+            : 'Crédito',
+        remaining_amount:
+          invoiceNumber.remaining_amount - invoice.amount
+      });
+
+      // Add associations to the created invoice
+      invoiceCreated.InvoiceNumber = invoiceNumber;
       invoiceCreated.Supplier = supplier;
 
       // Convert invoice to DTO
