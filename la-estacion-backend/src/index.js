@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
@@ -13,6 +14,9 @@ export const app = express();
 // Configuring express server
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Configuring cors
+app.use(cors());
 
 // await createDefaultDBValues();
 // defaultProductValues();

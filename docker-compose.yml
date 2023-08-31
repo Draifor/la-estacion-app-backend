@@ -29,7 +29,7 @@ services:
     build:
       context: ./la-estacion-backend
       dockerfile: Dockerfile
-    image: draifor/laestacionbackend:v1
+    image: draifor/laestacionbackend:v1.1.1
     restart: always
     ports:
       - 5000:3000
